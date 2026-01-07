@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  reviews   Review[]
+}
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  dishes      Dish[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Dish {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String?
+  
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  dailyMenus  DailyMenu[] 
+  reviews     Review[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model DailyMenu {
+  id     Int      @id @default(autoincrement())
+  date   DateTime @unique
+  name   String?
+  dishes Dish[]
+  reviews Review[]
+}
+model Review {
+  id          Int      @id @default(autoincrement())
+  rating      Int
+  comment     String?
+  isAnonymous Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+
+  dishId      Int
+  dish        Dish     @relation(fields: [dishId], references: [id])
+
+  dailyMenuId Int
+  dailyMenu   DailyMenu @relation(fields: [dailyMenuId], references: [id])
+
+  @@unique([userId, dishId, dailyMenuId])
+}
