@@ -5,7 +5,6 @@ import { AdminGuard } from '../auth/admin.guard';
 import { extname, join } from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
-import type { Multer } from 'multer';
 
 @Controller('upload')
 export class UploadController {
@@ -24,7 +23,7 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@UploadedFile() file: Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Dosya yüklenemedi. Lütfen bir dosya seçin.');
     }
