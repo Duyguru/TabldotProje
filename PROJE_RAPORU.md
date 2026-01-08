@@ -4,18 +4,22 @@
 
 Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir web uygulamasıdır. Bu proje, günlük menülerin yönetilmesi, yemeklerin kategorilendirilmesi ve kullanıcıların yemekler hakkında geri bildirim vermesi için kapsamlı bir çözüm sunmaktadır.
 
-### Proje Linki
-[Proje buraya deploy edildikten sonra link eklenecektir]
+### Proje Linkleri
+
+- **Frontend (Vercel)**: https://tabldot-proje.vercel.app
+- **Backend (Railway)**: https://tabldotproje-production.up.railway.app/api
+- **GitHub Repository**: [GitHub repository linki buraya eklenecek]
 
 ## 2. Teknoloji Yığını
 
 ### Backend
 - **Framework**: NestJS (Node.js)
-- **Veritabanı**: SQLite (Development) / PostgreSQL (Production için önerilir)
+- **Veritabanı**: SQLite (Development ve Production - Railway Persistent Volume ile)
 - **ORM**: Prisma
 - **Kimlik Doğrulama**: JWT (JSON Web Token)
 - **Şifreleme**: bcrypt
 - **Dil**: TypeScript
+- **Deployment Platform**: Railway
 
 ### Frontend
 - **Framework**: React
@@ -24,6 +28,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **HTTP İstemcisi**: Axios
 - **Form Yönetimi**: React Hook Form
 - **Stil**: Inline CSS ve Tailwind CSS
+- **Deployment Platform**: Vercel
 
 ## 3. Veritabanı Yapısı
 
@@ -38,6 +43,8 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 │ password    │
 │ name        │
 │ role        │
+│ createdAt   │
+│ updatedAt   │
 └──────┬──────┘
        │
        │ 1
@@ -66,6 +73,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 │ id (PK)     │
 │ name        │
 │ description │
+│ imageUrl    │
 │ categoryId  │
 │ createdAt   │
 │ updatedAt   │
@@ -145,7 +153,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **id**: Birincil anahtar
 - **name**: Yemek adı
 - **description**: Yemek açıklaması (opsiyonel)
-- **imageUrl**: Yemek fotoğrafı URL'i (opsiyonel)
+- **imageUrl**: Yemek fotoğrafı URL'i (opsiyonel - harici URL girişi)
 - **categoryId**: Kategori referansı (yabancı anahtar)
 - **createdAt**: Oluşturulma tarihi
 - **updatedAt**: Güncellenme tarihi
@@ -169,9 +177,9 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 
 ## 4. Backend Endpoint'leri
 
-### 4.1. Authentication Endpoint'leri (`/auth`)
+### 4.1. Authentication Endpoint'leri (`/api/auth`)
 
-#### POST `/auth/register`
+#### POST `/api/auth/register`
 - **Açıklama**: Yeni kullanıcı kaydı oluşturur
 - **Yetkilendirme**: Gerekmez
 - **Request Body**:
@@ -187,7 +195,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   - E-posta zaten kayıtlıysa 409 Conflict
   - Geçersiz veri gönderilirse 400 Bad Request
 
-#### POST `/auth/login`
+#### POST `/api/auth/login`
 - **Açıklama**: Kullanıcı girişi yapar ve JWT token döner
 - **Yetkilendirme**: Gerekmez
 - **Request Body**:
@@ -201,19 +209,19 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **Hata Durumları**: 
   - E-posta veya şifre hatalıysa 401 Unauthorized
 
-### 4.2. Categories Endpoint'leri (`/categories`)
+### 4.2. Categories Endpoint'leri (`/api/categories`)
 
-#### GET `/categories`
+#### GET `/api/categories`
 - **Açıklama**: Tüm kategorileri listeler
 - **Yetkilendirme**: Gerekmez
 - **Response**: Kategori listesi (id, name, description)
 
-#### GET `/categories/:id`
+#### GET `/api/categories/:id`
 - **Açıklama**: Belirli bir kategoriyi getirir
 - **Yetkilendirme**: Gerekmez
 - **Response**: Kategori detayları
 
-#### POST `/categories`
+#### POST `/api/categories`
 - **Açıklama**: Yeni kategori oluşturur
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -225,7 +233,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   ```
 - **Response**: Oluşturulan kategori bilgileri
 
-#### PATCH `/categories/:id`
+#### PATCH `/api/categories/:id`
 - **Açıklama**: Mevcut kategoriyi günceller
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -237,24 +245,24 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   ```
 - **Response**: Güncellenmiş kategori bilgileri
 
-#### DELETE `/categories/:id`
+#### DELETE `/api/categories/:id`
 - **Açıklama**: Kategoriyi siler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Silme başarı mesajı
 
-### 4.3. Dishes Endpoint'leri (`/dishes`)
+### 4.3. Dishes Endpoint'leri (`/api/dishes`)
 
-#### GET `/dishes`
+#### GET `/api/dishes`
 - **Açıklama**: Tüm yemekleri listeler (kategori bilgileriyle birlikte)
 - **Yetkilendirme**: Gerekmez
-- **Response**: Yemek listesi (id, name, description, category)
+- **Response**: Yemek listesi (id, name, description, category, imageUrl)
 
-#### GET `/dishes/:id`
+#### GET `/api/dishes/:id`
 - **Açıklama**: Belirli bir yemeği getirir
 - **Yetkilendirme**: Gerekmez
 - **Response**: Yemek detayları
 
-#### POST `/dishes`
+#### POST `/api/dishes`
 - **Açıklama**: Yeni yemek oluşturur
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -267,9 +275,9 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   }
   ```
 - **Response**: Oluşturulan yemek bilgileri
-- **Not**: `imageUrl` opsiyoneldir ve geçerli bir URL formatında olmalıdır (http:// veya https:// ile başlamalı)
+- **Not**: `imageUrl` opsiyoneldir ve geçerli bir URL formatında olmalıdır (http:// veya https:// ile başlamalı). Local dosya yükleme desteği kaldırılmıştır.
 
-#### PATCH `/dishes/:id`
+#### PATCH `/api/dishes/:id`
 - **Açıklama**: Mevcut yemeği günceller
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -282,32 +290,31 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   }
   ```
 - **Response**: Güncellenmiş yemek bilgileri
-- **Not**: `imageUrl` opsiyoneldir ve geçerli bir URL formatında olmalıdır (http:// veya https:// ile başlamalı)
 
-#### DELETE `/dishes/:id`
+#### DELETE `/api/dishes/:id`
 - **Açıklama**: Yemeği siler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Silme başarı mesajı
 
-### 4.4. Daily Menus Endpoint'leri (`/daily-menus`)
+### 4.4. Daily Menus Endpoint'leri (`/api/daily-menus`)
 
-#### GET `/daily-menus`
+#### GET `/api/daily-menus`
 - **Açıklama**: Tüm günlük menüleri listeler (yemek bilgileriyle birlikte)
 - **Yetkilendirme**: Gerekmez
 - **Response**: Günlük menü listesi
 
-#### GET `/daily-menus/:id`
+#### GET `/api/daily-menus/:id`
 - **Açıklama**: Belirli bir günlük menüyü getirir
 - **Yetkilendirme**: Gerekmez
 - **Response**: Günlük menü detayları
 
-#### GET `/daily-menus/date/today`
+#### GET `/api/daily-menus/date/today`
 - **Açıklama**: Bugünün tarihine ait günlük menüyü getirir
 - **Yetkilendirme**: Gerekmez
 - **Response**: Bugünün menüsü (yemek listesiyle birlikte)
 - **Özel Durum**: Bugün için menü yoksa null döner
 
-#### POST `/daily-menus`
+#### POST `/api/daily-menus`
 - **Açıklama**: Yeni günlük menü oluşturur
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -319,7 +326,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   ```
 - **Response**: Oluşturulan menü bilgileri
 
-#### PATCH `/daily-menus/:id`
+#### PATCH `/api/daily-menus/:id`
 - **Açıklama**: Mevcut günlük menüyü günceller
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -331,14 +338,14 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   ```
 - **Response**: Güncellenmiş menü bilgileri
 
-#### DELETE `/daily-menus/:id`
+#### DELETE `/api/daily-menus/:id`
 - **Açıklama**: Günlük menüyü siler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Silme başarı mesajı
 
-### 4.5. Reviews Endpoint'leri (`/reviews`)
+### 4.5. Reviews Endpoint'leri (`/api/reviews`)
 
-#### GET `/reviews`
+#### GET `/api/reviews`
 - **Açıklama**: Tüm yorumları listeler (yemek, kullanıcı ve günlük menü bilgileriyle birlikte)
 - **Yetkilendirme**: Gerekmez
 - **Query Parametreleri**:
@@ -346,7 +353,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **Response**: Yorum listesi (en yeni yorumlar önce)
 - **İçerik**: rating, comment, dish bilgisi, user bilgisi, dailyMenu bilgisi, createdAt
 
-#### POST `/reviews`
+#### POST `/api/reviews`
 - **Açıklama**: Yeni yorum oluşturur
 - **Yetkilendirme**: JWT Token gerekli (herhangi bir rol)
 - **Request Body**:
@@ -366,7 +373,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   - Yemek seçilen günün menüsünde yoksa 404 Not Found
   - Kullanıcı daha önce yorum yaptıysa 409 Conflict
 
-#### DELETE `/reviews/:id`
+#### DELETE `/api/reviews/:id`
 - **Açıklama**: Yorumu siler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Silme başarı mesajı
@@ -374,20 +381,20 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   - Yorum bulunamazsa 404 Not Found
   - Yetki yoksa 403 Forbidden
 
-### 4.6. Users Endpoint'leri (`/users`)
+### 4.6. Users Endpoint'leri (`/api/users`)
 
-#### GET `/users`
+#### GET `/api/users`
 - **Açıklama**: Tüm kullanıcıları listeler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Kullanıcı listesi (id, email, name, role, createdAt)
 - **Not**: Şifre bilgileri response'da yer almaz
 
-#### GET `/users/:id`
+#### GET `/api/users/:id`
 - **Açıklama**: Belirli bir kullanıcıyı getirir
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Kullanıcı detayları
 
-#### PATCH `/users/:id`
+#### PATCH `/api/users/:id`
 - **Açıklama**: Kullanıcı bilgilerini günceller (ad, e-posta, rol)
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Body**:
@@ -401,7 +408,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **Response**: Güncellenmiş kullanıcı bilgileri
 - **Not**: Şifre güncellemesi bu endpoint üzerinden yapılamaz
 
-#### DELETE `/users/:id`
+#### DELETE `/api/users/:id`
 - **Açıklama**: Kullanıcıyı siler
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Response**: Silme başarı mesajı
@@ -409,11 +416,11 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   - Kullanıcı bulunamazsa 404 Not Found
   - Yetki yoksa 403 Forbidden
 
-### 4.7. Upload Endpoint'leri (`/upload`)
+### 4.7. Upload Endpoint'leri (`/api/upload`)
 
 **Not:** Bu endpoint mevcut ancak frontend'de aktif olarak kullanılmamaktadır. Yemek fotoğrafları için sadece URL ile ekleme yapılmaktadır.
 
-#### POST `/upload/image`
+#### POST `/api/upload/image`
 - **Açıklama**: Resim dosyası yükler (yemek fotoğrafları için - opsiyonel, şu an kullanılmıyor)
 - **Yetkilendirme**: JWT Token + ADMIN rolü gerekli
 - **Request Type**: `multipart/form-data`
@@ -512,7 +519,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **Layout**: Split-screen tasarım (sol: hero section, sağ: menü listesi)
 - **Kullanıcı Deneyimi**: 
   - Responsive grid layout (2 sütun)
-  - Yemek görselleri (Unsplash API)
+  - Yemek görselleri (URL'den veya Unsplash API)
   - Yıldız puanlama gösterimi
   - Modal ile yorum formu
 
@@ -531,10 +538,15 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
   - **Kategoriler**: Kategori ekleme, düzenleme, silme
   - **Yemekler**: Yemek ekleme, düzenleme, silme, resim URL'i ekleme (opsiyonel)
   - **Günlük Menüler**: Menü oluşturma, düzenleme, silme, yemek seçimi
-  - **Yorumlar**: Yorumları görüntüleme, tarihe göre filtreleme, yorum silme
-  - **Kullanıcılar**: Kullanıcı listesi, rol değiştirme, kullanıcı silme
+  - **Yorumlar**: Yorumları görüntüleme, tarihe göre filtreleme, günlere göre gruplama, yemeklere göre gruplama, yorum silme
+  - **Kullanıcılar**: Kullanıcı listesi, rol değiştirme (USER ↔ ADMIN), kullanıcı silme
 - **CRUD İşlemleri**: Tüm entity'ler için Create, Read, Update, Delete işlemleri frontend'den yapılabilir
 - **Resim Yönetimi**: Yemek fotoğrafları için sadece URL input'u kullanılır. Kullanıcılar harici bir URL (örn: Unsplash, Imgur) girebilir.
+- **Yorum Yönetimi**: 
+  - Yorumlar günlere göre gruplandırılır
+  - Her gün içinde yorumlar yemeklere göre gruplandırılır
+  - Tarih seçici ile belirli bir güne ait yorumlar filtrelenebilir
+  - Her yorum için kullanıcı bilgisi, puan, yorum metni ve tarih gösterilir
 
 #### AdminLayout.jsx
 - **Açıklama**: Admin panelinin ana layout yapısı (kullanılmıyor, AdminPanel.jsx tek sayfa olarak çalışıyor)
@@ -578,10 +590,11 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 #### axios.js
 - **Açıklama**: HTTP istekleri için yapılandırılmış Axios instance
 - **Özellikler**:
-  - Base URL yapılandırması
+  - Base URL yapılandırması (environment variable ile)
   - Request interceptor ile JWT token ekleme
   - Response/error handling
   - Token'ı localStorage'dan otomatik alır
+- **Environment Variable**: `VITE_API_URL` (production'da Railway backend URL'i)
 
 ## 6. Güvenlik Özellikleri
 
@@ -590,7 +603,7 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 - **Role-Based Access Control (RBAC)**: ADMIN ve USER rolleri ile yetkilendirme
 - **Password Hashing**: bcrypt ile şifreler hash'lenerek saklanır
 - **Input Validation**: class-validator ile tüm input'lar validate edilir
-- **CORS**: Cross-Origin Resource Sharing yapılandırılmıştır
+- **CORS**: Cross-Origin Resource Sharing yapılandırılmıştır (Vercel frontend URL'i dahil)
 
 ### Frontend Güvenliği
 - **Token Storage**: JWT token localStorage'da saklanır
@@ -607,78 +620,109 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 ✅ **Bire-çok ilişki**: Category-Dish, User-Review, Dish-Review, DailyMenu-Review (4 adet - gereksinimi aşıyor)
 ✅ **Çoka-çok ilişki**: DailyMenu-Dish (many-to-many) - Prisma implicit many-to-many kullanılıyor
 ✅ **Frontend'den CRUD işlemleri**: Tüm entity'ler için Create, Read, Update, Delete işlemleri frontend'den yapılabilir
-⏳ **Bulut deployment**: Henüz yapılmadı (Vercel/Netlify frontend, Railway/Render backend önerilir)
+✅ **Bulut deployment**: Railway (backend) ve Vercel (frontend) üzerinde deploy edilmiştir
 ✅ **Detaylı rapor**: Bu rapor hazırlanmıştır ve tüm endpoint'ler, component'ler açıklanmıştır
 ✅ **Veritabanı diyagramı**: Rapor içinde mevcut
 ✅ **Endpoint açıklamaları**: Tüm backend endpoint'leri detaylı açıklanmıştır
 ✅ **Component açıklamaları**: Tüm frontend component'leri kısaca açıklanmıştır
 
-## 8. Deployment Önerileri
+## 8. Deployment Detayları
 
-### Backend Deployment
-- **Önerilen Platform**: Railway, Render, veya Heroku
-- **Gereksinimler**:
-  - Veritabanı: SQLite (persistent volume ile) veya PostgreSQL (Neon Cloud önerilir)
-  - Environment variables (JWT secret, database URL)
-  - Build komutu: `npm run build`
-  - Start komutu: `npm run start:prod`
-- **Not**: Şu anda proje SQLite kullanıyor. Production için PostgreSQL'e geçiş önerilir (detaylar için DEPLOYMENT_REHBERI.md'ye bakın)
+### Backend Deployment (Railway)
 
-### Frontend Deployment
-- **Önerilen Platform**: Vercel veya Netlify
-- **Gereksinimler**:
-  - Environment variable: Backend API URL
-  - Build komutu: `npm run build`
-  - Output directory: `dist`
+- **Platform**: Railway
+- **URL**: https://tabldotproje-production.up.railway.app/api
+- **Veritabanı**: SQLite (Persistent Volume ile)
+- **Build Komutu**: `npm install --include=dev && npx prisma generate && npx prisma db push && npm run build`
+- **Start Komutu**: `npm run start:prod`
+- **Environment Variables**:
+  - `DATABASE_URL`: `file:./prisma/dev.db`
+  - `JWT_SECRET`: JWT token şifreleme anahtarı
+  - `FRONTEND_URL`: `https://tabldot-proje.vercel.app`
+- **Not**: SQLite kullanıldığı için Persistent Volume eklendi. Production için PostgreSQL önerilir ancak şu an SQLite ile çalışmaktadır.
+
+### Frontend Deployment (Vercel)
+
+- **Platform**: Vercel
+- **URL**: https://tabldot-proje.vercel.app
+- **Build Komutu**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: `https://tabldotproje-production.up.railway.app/api`
+- **Routing**: `vercel.json` ile SPA routing yapılandırılmıştır
 
 ### Environment Variables
 
-#### Backend (.env)
+#### Backend (.env - Railway)
 ```
-# SQLite için (şu anki durum)
-DATABASE_URL=file:./dev.db
-
-# VEYA PostgreSQL için (production önerilir)
-# DATABASE_URL=postgresql://user:password@host/database?sslmode=require
-
+DATABASE_URL=file:./prisma/dev.db
 JWT_SECRET=your-secret-key
-PORT=3000
-BASE_URL=https://your-backend-url.railway.app
+FRONTEND_URL=https://tabldot-proje.vercel.app
 ```
 
-#### Frontend (.env)
+#### Frontend (.env - Vercel)
 ```
-VITE_API_URL=https://your-backend-url.com
+VITE_API_URL=https://tabldotproje-production.up.railway.app/api
 ```
 
 ## 9. Proje Yapısı
 
 ```
-tabldot-backend/
-├── src/
-│   ├── auth/          # Kimlik doğrulama modülü
-│   ├── categories/    # Kategori modülü
-│   ├── dishes/        # Yemek modülü
-│   ├── daily-menus/  # Günlük menü modülü
-│   ├── reviews/       # Yorum modülü
-│   ├── users/         # Kullanıcı modülü
-│   └── prisma/        # Prisma servisi
-└── prisma/
-    └── schema.prisma  # Veritabanı şeması
-
-tabldot-frontend/
-├── src/
-│   ├── admin/         # Admin panel component'leri
-│   ├── api/           # API yapılandırması
-│   ├── context/       # Context API
-│   ├── routes/        # Route guard'lar
-│   ├── App.jsx        # Ana routing
-│   ├── Home.jsx       # Ana sayfa
-│   ├── Login.jsx      # Giriş sayfası
-│   └── Register.jsx   # Kayıt sayfası
+TabldotProje/
+├── PROJE_RAPORU.md          # Proje raporu
+├── tabldot-backend/         # NestJS Backend
+│   ├── src/
+│   │   ├── auth/           # Kimlik doğrulama modülü
+│   │   ├── categories/     # Kategori modülü
+│   │   ├── daily-menus/    # Günlük menü modülü
+│   │   ├── dishes/         # Yemek modülü
+│   │   ├── reviews/        # Yorum modülü
+│   │   ├── users/          # Kullanıcı modülü
+│   │   ├── upload/         # Dosya yükleme modülü
+│   │   └── prisma/         # Prisma servisi
+│   ├── prisma/
+│   │   ├── schema.prisma   # Veritabanı şeması
+│   │   └── migrations/     # Migrasyonlar
+│   ├── railway.json        # Railway deploy config
+│   └── package.json        # Dependencies
+│
+└── tabldot-frontend/        # React Frontend
+    ├── src/
+    │   ├── admin/          # Admin panel component'leri
+    │   ├── api/            # API yapılandırması
+    │   ├── context/        # Context API
+    │   ├── routes/         # Route guard'lar
+    │   ├── App.jsx         # Ana routing
+    │   ├── Home.jsx        # Ana sayfa
+    │   ├── Login.jsx       # Giriş sayfası
+    │   └── Register.jsx    # Kayıt sayfası
+    ├── vercel.json         # Vercel deploy config
+    └── package.json        # Dependencies
 ```
 
-## 10. Sonuç
+## 10. Önemli Notlar
 
-Tabldot Projesi, modern web teknolojileri kullanılarak geliştirilmiş, tam fonksiyonel bir yemekhane yönetim sistemidir. Proje, tüm belirtilen gereksinimleri karşılamakta ve production-ready bir yapıya sahiptir. Backend ve frontend arasındaki iletişim RESTful API prensiplerine uygun olarak tasarlanmıştır. Güvenlik, kullanıcı deneyimi ve kod kalitesi açısından best practice'ler uygulanmıştır.
+### Kod Temizliği
+- Projede tüm yorum satırları kaldırılmıştır
+- Gereksiz dosyalar temizlenmiştir (eski Express route'ları, boş dosyalar)
+- Proje yapısı NestJS ve React best practice'lerine uygundur
 
+### Resim Yönetimi
+- Local dosya yükleme desteği kaldırılmıştır
+- Yemek fotoğrafları için sadece harici URL girişi kullanılmaktadır
+- Kullanıcılar Unsplash, Imgur gibi servislerden URL girebilir
+
+### Veritabanı
+- Şu anda SQLite kullanılmaktadır (Railway Persistent Volume ile)
+- Production için PostgreSQL önerilir ancak SQLite ile de çalışmaktadır
+- Veriler Persistent Volume sayesinde deploy'lar arasında korunur
+
+### Deployment
+- Backend Railway üzerinde çalışmaktadır
+- Frontend Vercel üzerinde çalışmaktadır
+- CORS yapılandırması Vercel URL'i için yapılmıştır
+- Environment variable'lar her iki platformda da yapılandırılmıştır
+
+## 11. Sonuç
+
+Tabldot Projesi, modern web teknolojileri kullanılarak geliştirilmiş, tam fonksiyonel bir yemekhane yönetim sistemidir. Proje, tüm belirtilen gereksinimleri karşılamakta ve production-ready bir yapıya sahiptir. Backend ve frontend arasındaki iletişim RESTful API prensiplerine uygun olarak tasarlanmıştır. Güvenlik, kullanıcı deneyimi ve kod kalitesi açısından best practice'ler uygulanmıştır. Proje başarıyla Railway ve Vercel üzerinde deploy edilmiştir ve public olarak erişilebilir durumdadır.
