@@ -32,14 +32,20 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
+    if (typeof window === 'undefined') return;
+    
+    const updateWidth = () => {
       setWindowWidth(window.innerWidth);
     };
-    if (typeof window !== 'undefined') {
-      setWindowWidth(window.innerWidth);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    window.addEventListener('orientationchange', updateWidth);
+    
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+      window.removeEventListener('orientationchange', updateWidth);
+    };
   }, []);
 
   const openReviewModal = (dish) => {
@@ -156,6 +162,9 @@ function Home() {
   };
 
   const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+  
+  const currentStyles = getStyles(windowWidth);
   
   return (
     <div style={{
@@ -167,32 +176,33 @@ function Home() {
       flexDirection: 'column',
       fontFamily: "'Playfair Display', serif",
       overflowX: 'hidden',
+      position: 'relative',
     }}>
-      <div style={getStyles(windowWidth).topBar}>
-        <div style={getStyles(windowWidth).userInfo}>
-          <span style={getStyles(windowWidth).userName}>Hoş geldin, {user?.name || user?.email}</span>
+      <div style={currentStyles.topBar}>
+        <div style={currentStyles.userInfo}>
+          <span style={currentStyles.userName}>Hoş geldin, {user?.name || user?.email}</span>
           {isAdmin && (
             <>
               <button
                 type="button"
                 onClick={() => navigate('/admin')}
-                style={getStyles(windowWidth).adminButton}
+                style={currentStyles.adminButton}
               >
-                Admin Paneli
+                {isMobile ? 'Admin' : 'Admin Paneli'}
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(true)}
-                style={{ ...getStyles(windowWidth).adminButton, backgroundColor: '#2980b9', marginLeft: 8 }}
+                style={{ ...currentStyles.adminButton, backgroundColor: '#2980b9', marginLeft: isMobile ? 4 : 8 }}
               >
-                Kullanıcı Ekle
+                {isMobile ? 'Kullanıcı' : 'Kullanıcı Ekle'}
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddDishModal(true)}
-                style={{ ...getStyles(windowWidth).adminButton, backgroundColor: '#27ae60', marginLeft: 8 }}
+                style={{ ...currentStyles.adminButton, backgroundColor: '#27ae60', marginLeft: isMobile ? 4 : 8 }}
               >
-                Yemek Ekle
+                {isMobile ? 'Yemek' : 'Yemek Ekle'}
               </button>
             </>
           )}
@@ -203,9 +213,9 @@ function Home() {
             logout();
             navigate('/login');
           }}
-          style={getStyles(windowWidth).logoutButton}
+          style={currentStyles.logoutButton}
         >
-          Çıkış Yap
+          {isMobile ? 'Çıkış' : 'Çıkış Yap'}
         </button>
       </div>
 
@@ -214,15 +224,17 @@ function Home() {
         display: 'flex',
         flexDirection: 'column',
         background: 'white',
-        padding: isMobile ? '16px 12px' : '40px 60px',
+        padding: isMobile ? '12px 8px' : isTablet ? '24px 32px' : '40px 60px',
         overflowY: 'auto',
         overflowX: 'hidden',
         width: '100%',
+        maxWidth: '100%',
         boxSizing: 'border-box',
+        position: 'relative',
       }}>
-        <div style={getStyles(windowWidth).menuHeader}>
-          <h2 style={getStyles(windowWidth).menuTitle}>Günün Menüsü</h2>
-          <p style={styles.menuSubtitle}>Şirkette bugün servis edilen tabldot menü</p>
+        <div style={currentStyles.menuHeader}>
+          <h2 style={currentStyles.menuTitle}>Günün Menüsü</h2>
+          <p style={currentStyles.menuSubtitle}>Şirkette bugün servis edilen tabldot menü</p>
         </div>
         {loading && (
           <p style={{ fontSize: '14px', color: '#7f8c8d' }}>Günlük menü yükleniyor...</p>
@@ -274,7 +286,7 @@ function Home() {
                   </div>
                   <button
                     type="button"
-                    style={getStyles(windowWidth).detailsButton}
+                    style={currentStyles.detailsButton}
                     onClick={() => openReviewModal(dish)}
                   >
                     YORUM YAP / PUAN VER
@@ -684,9 +696,11 @@ const getStyles = (windowWidth) => ({
       : windowWidth < 1024 
         ? 'repeat(2, 1fr)' 
         : 'repeat(3, 1fr)',
-    gap: windowWidth < 768 ? '16px' : '24px',
+    gap: windowWidth < 768 ? '12px' : windowWidth < 1024 ? '20px' : '24px',
     paddingBottom: '20px',
     alignItems: 'start',
+    width: '100%',
+    boxSizing: 'border-box',
   },
 
   dishCard: {
@@ -708,19 +722,21 @@ const getStyles = (windowWidth) => ({
   },
 
   dishContent: {
-    padding: '20px',
+    padding: windowWidth < 768 ? '16px' : '20px',
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    textAlign: 'center', // İçeriği ortala
+    textAlign: 'center',
+    boxSizing: 'border-box',
   },
 
   dishName: {
-    fontSize: '18px',
+    fontSize: windowWidth < 768 ? '16px' : '18px',
     color: '#1a1a1a',
     fontWeight: '600',
     marginBottom: '10px',
     fontFamily: "'Poppins', sans-serif",
+    wordBreak: 'break-word',
   },
 
   dishDescription: {
@@ -733,18 +749,20 @@ const getStyles = (windowWidth) => ({
   },
 
   detailsButton: {
-    padding: '10px 20px',
-    backgroundColor: '#1a1a1a', // Koyu buton
+    padding: windowWidth < 768 ? '8px 16px' : '10px 20px',
+    backgroundColor: '#1a1a1a',
     border: 'none',
     borderRadius: '4px',
     color: 'white',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '12px',
     fontWeight: '600',
     cursor: 'pointer',
     letterSpacing: '1px',
-    alignSelf: 'center', // Butonu ortala
+    alignSelf: 'center',
     textTransform: 'uppercase',
     transition: 'background-color 0.3s',
+    width: windowWidth < 768 ? '100%' : 'auto',
+    boxSizing: 'border-box',
   },
 });
 
