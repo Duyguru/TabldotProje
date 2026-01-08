@@ -8,7 +8,6 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 
 - **Frontend (Vercel)**: https://tabldot-proje.vercel.app
 - **Backend (Railway)**: https://tabldotproje-production.up.railway.app/api
-- **GitHub Repository**: [GitHub repository linki buraya eklenecek]
 
 ## 2. Teknoloji Yığını
 
@@ -700,29 +699,6 @@ TabldotProje/
     └── package.json        # Dependencies
 ```
 
-## 10. Önemli Notlar
-
-### Kod Temizliği
-- Projede tüm yorum satırları kaldırılmıştır
-- Gereksiz dosyalar temizlenmiştir (eski Express route'ları, boş dosyalar)
-- Proje yapısı NestJS ve React best practice'lerine uygundur
-
-### Resim Yönetimi
-- Local dosya yükleme desteği kaldırılmıştır
-- Yemek fotoğrafları için sadece harici URL girişi kullanılmaktadır
-- Kullanıcılar Unsplash, Imgur gibi servislerden URL girebilir
-
-### Veritabanı
-- Şu anda SQLite kullanılmaktadır (Railway Persistent Volume ile)
-- Production için PostgreSQL önerilir ancak SQLite ile de çalışmaktadır
-- Veriler Persistent Volume sayesinde deploy'lar arasında korunur
-
-### Deployment
-- Backend Railway üzerinde çalışmaktadır
-- Frontend Vercel üzerinde çalışmaktadır
-- CORS yapılandırması Vercel URL'i için yapılmıştır
-- Environment variable'lar her iki platformda da yapılandırılmıştır
-
-## 11. Sonuç
+## 10. Sonuç
 
 Tabldot Projesi, modern web teknolojileri kullanılarak geliştirilmiş, tam fonksiyonel bir yemekhane yönetim sistemidir. Proje, tüm belirtilen gereksinimleri karşılamakta ve production-ready bir yapıya sahiptir. Backend ve frontend arasındaki iletişim RESTful API prensiplerine uygun olarak tasarlanmıştır. Güvenlik, kullanıcı deneyimi ve kod kalitesi açısından best practice'ler uygulanmıştır. Proje başarıyla Railway ve Vercel üzerinde deploy edilmiştir ve public olarak erişilebilir durumdadır.
