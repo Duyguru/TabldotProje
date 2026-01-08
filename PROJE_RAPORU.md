@@ -8,7 +8,6 @@ Tabldot Projesi, şirket yemekhanesi yönetim sistemi için geliştirilmiş bir 
 
 - **Frontend (Vercel)**: https://tabldot-proje.vercel.app
 - **Backend (Railway)**: https://tabldotproje-production.up.railway.app/api
-- **GitHub Repository**: [GitHub repository linki buraya eklenecek]
 
 ## 2. Teknoloji Yığını
 
