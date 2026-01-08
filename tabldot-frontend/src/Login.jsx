@@ -7,8 +7,25 @@ function Login() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isAdmin } = useAuth();
   const [errorMessage, setErrorMessage] = useState('');
+  const [windowWidth, setWindowWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth;
+    }
+    return 1024;
+  });
   
   const bgImage = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3";
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   const {
     register,
@@ -69,9 +86,10 @@ function Login() {
     box: {
       position: 'relative',
       zIndex: 10,
-      width: window.innerWidth < 768 ? '90%' : '380px',
+      width: windowWidth < 768 ? '90%' : '380px',
       maxWidth: '380px',
-      padding: window.innerWidth < 768 ? '30px 20px' : '40px',
+      padding: windowWidth < 768 ? '30px 20px' : '40px',
+      boxSizing: 'border-box',
       backgroundColor: 'rgba(0, 0, 0, 0.75)',
       border: '2px solid rgba(255, 255, 255, 0.6)',
       borderRadius: '8px',
@@ -83,7 +101,7 @@ function Login() {
     title: {
       color: 'white',
       textAlign: 'center',
-      fontSize: window.innerWidth < 768 ? '24px' : '28px',
+      fontSize: windowWidth < 768 ? '24px' : '28px',
       fontWeight: 'bold',
       marginBottom: '5px'
     },

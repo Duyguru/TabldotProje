@@ -20,7 +20,12 @@ function Home() {
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddDishModal, setShowAddDishModal] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth;
+    }
+    return 1024;
+  });
 
   useEffect(() => {
     loadTodayMenuAndReviews();
@@ -30,8 +35,11 @@ function Home() {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
   }, []);
 
   const openReviewModal = (dish) => {
@@ -147,14 +155,18 @@ function Home() {
     }
   };
 
+  const isMobile = windowWidth < 768;
+  
   return (
     <div style={{
       minHeight: '100vh',
-      width: '100vw',
+      width: '100%',
+      maxWidth: '100vw',
       background: "#f9f5f0",
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Playfair Display', serif",
+      overflowX: 'hidden',
     }}>
       <div style={getStyles(windowWidth).topBar}>
         <div style={getStyles(windowWidth).userInfo}>
@@ -202,8 +214,11 @@ function Home() {
         display: 'flex',
         flexDirection: 'column',
         background: 'white',
-        padding: windowWidth < 768 ? '20px 16px' : '40px 60px',
+        padding: isMobile ? '16px 12px' : '40px 60px',
         overflowY: 'auto',
+        overflowX: 'hidden',
+        width: '100%',
+        boxSizing: 'border-box',
       }}>
         <div style={getStyles(windowWidth).menuHeader}>
           <h2 style={getStyles(windowWidth).menuTitle}>Günün Menüsü</h2>
@@ -387,10 +402,11 @@ function Home() {
             style={{
               backgroundColor: '#fff',
               borderRadius: '16px',
-              padding: windowWidth < 768 ? '20px' : '24px',
+              padding: isMobile ? '20px' : '24px',
               width: '100%',
-              maxWidth: windowWidth < 768 ? '95%' : '420px',
-              margin: windowWidth < 768 ? '16px' : '0',
+              maxWidth: isMobile ? '95%' : '420px',
+              margin: isMobile ? '16px' : '0',
+              boxSizing: 'border-box',
               boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
               fontFamily: "'Poppins', sans-serif",
             }}
@@ -517,8 +533,8 @@ function Home() {
 
       {/* Admin: Kullanıcı Ekle Modalı */}
       {isAdmin && showAddUserModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: window.innerWidth < 768 ? '16px' : '0' }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: window.innerWidth < 768 ? '20px' : 32, width: window.innerWidth < 768 ? '100%' : 'auto', minWidth: window.innerWidth < 768 ? 'auto' : 340, maxWidth: window.innerWidth < 768 ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '16px' : '0', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: isMobile ? '20px' : 32, width: isMobile ? '100%' : 'auto', minWidth: isMobile ? 'auto' : 340, maxWidth: isMobile ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', boxSizing: 'border-box' }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Kullanıcı Ekle</h2>
             <form onSubmit={handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input type="text" placeholder="Ad Soyad" required name="name" style={modalInputStyle} />
@@ -534,8 +550,8 @@ function Home() {
       )}
       {/* Admin: Yemek Ekle Modalı */}
       {isAdmin && showAddDishModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: window.innerWidth < 768 ? '16px' : '0' }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: window.innerWidth < 768 ? '20px' : 32, width: window.innerWidth < 768 ? '100%' : 'auto', minWidth: window.innerWidth < 768 ? 'auto' : 340, maxWidth: window.innerWidth < 768 ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '16px' : '0', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: isMobile ? '20px' : 32, width: isMobile ? '100%' : 'auto', minWidth: isMobile ? 'auto' : 340, maxWidth: isMobile ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', boxSizing: 'border-box' }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Yemek Ekle</h2>
             <form onSubmit={handleAddDish} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input type="text" placeholder="Yemek Adı" required name="name" style={modalInputStyle} />
@@ -568,13 +584,15 @@ const getStyles = (windowWidth) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: windowWidth < 768 ? '12px 16px' : '12px 24px',
+    padding: windowWidth < 768 ? '10px 12px' : '12px 24px',
     backgroundColor: '#fff',
     borderBottom: '1px solid #e0e0e0',
     fontFamily: "'Poppins', sans-serif",
     flexShrink: 0,
     flexWrap: 'wrap',
-    gap: '8px',
+    gap: windowWidth < 768 ? '6px' : '8px',
+    width: '100%',
+    boxSizing: 'border-box',
   },
 
   userInfo: {
@@ -597,16 +615,17 @@ const getStyles = (windowWidth) => ({
   },
 
   adminButton: {
-    padding: windowWidth < 768 ? '6px 8px' : '6px 12px',
+    padding: windowWidth < 768 ? '5px 8px' : '6px 12px',
     backgroundColor: '#e67e22',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
-    fontSize: windowWidth < 768 ? '10px' : '12px',
+    fontSize: windowWidth < 768 ? '9px' : '12px',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'background-color 0.3s',
     whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
 
   logoutButton: {
