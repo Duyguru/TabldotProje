@@ -20,9 +20,18 @@ function Home() {
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddDishModal, setShowAddDishModal] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     loadTodayMenuAndReviews();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const openReviewModal = (dish) => {
@@ -147,29 +156,29 @@ function Home() {
       flexDirection: 'column',
       fontFamily: "'Playfair Display', serif",
     }}>
-      <div style={styles.topBar}>
-        <div style={styles.userInfo}>
-          <span style={styles.userName}>Hoş geldin, {user?.name || user?.email}</span>
+      <div style={getStyles(windowWidth).topBar}>
+        <div style={getStyles(windowWidth).userInfo}>
+          <span style={getStyles(windowWidth).userName}>Hoş geldin, {user?.name || user?.email}</span>
           {isAdmin && (
             <>
               <button
                 type="button"
                 onClick={() => navigate('/admin')}
-                style={styles.adminButton}
+                style={getStyles(windowWidth).adminButton}
               >
                 Admin Paneli
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(true)}
-                style={{ ...styles.adminButton, backgroundColor: '#2980b9', marginLeft: 8 }}
+                style={{ ...getStyles(windowWidth).adminButton, backgroundColor: '#2980b9', marginLeft: 8 }}
               >
                 Kullanıcı Ekle
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddDishModal(true)}
-                style={{ ...styles.adminButton, backgroundColor: '#27ae60', marginLeft: 8 }}
+                style={{ ...getStyles(windowWidth).adminButton, backgroundColor: '#27ae60', marginLeft: 8 }}
               >
                 Yemek Ekle
               </button>
@@ -182,7 +191,7 @@ function Home() {
             logout();
             navigate('/login');
           }}
-          style={styles.logoutButton}
+          style={getStyles(windowWidth).logoutButton}
         >
           Çıkış Yap
         </button>
@@ -193,11 +202,11 @@ function Home() {
         display: 'flex',
         flexDirection: 'column',
         background: 'white',
-        padding: '40px 60px',
+        padding: windowWidth < 768 ? '20px 16px' : '40px 60px',
         overflowY: 'auto',
       }}>
-        <div style={styles.menuHeader}>
-          <h2 style={styles.menuTitle}>Günün Menüsü</h2>
+        <div style={getStyles(windowWidth).menuHeader}>
+          <h2 style={getStyles(windowWidth).menuTitle}>Günün Menüsü</h2>
           <p style={styles.menuSubtitle}>Şirkette bugün servis edilen tabldot menü</p>
         </div>
         {loading && (
@@ -212,22 +221,22 @@ function Home() {
           </p>
         )}
         {!loading && !error && dailyMenu && dailyMenu.dishes && dailyMenu.dishes.length > 0 && (
-          <div style={styles.gridContainer}>
+          <div style={getStyles(windowWidth).gridContainer}>
             {dailyMenu.dishes.map((dish) => (
-              <div key={dish.id} style={styles.dishCard}>
+              <div key={dish.id} style={getStyles(windowWidth).dishCard}>
                 <img
                   src={dish.imageUrl || `https://source.unsplash.com/600x400/?food,${encodeURIComponent(
                     dish.name,
                   )}`}
                   alt={dish.name}
-                  style={styles.dishImage}
+                  style={getStyles(windowWidth).dishImage}
                   onError={(e) => {
                     e.target.src = `https://source.unsplash.com/600x400/?food,${encodeURIComponent(dish.name)}`;
                   }}
                 />
-                <div style={styles.dishContent}>
-                  <h3 style={styles.dishName}>{dish.name}</h3>
-                  <p style={styles.dishDescription}>
+                <div style={getStyles(windowWidth).dishContent}>
+                  <h3 style={getStyles(windowWidth).dishName}>{dish.name}</h3>
+                  <p style={getStyles(windowWidth).dishDescription}>
                     {dish.description || 'Şefimizin özenle hazırladığı, günlük şirket menü yemeği.'}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
@@ -250,7 +259,7 @@ function Home() {
                   </div>
                   <button
                     type="button"
-                    style={styles.detailsButton}
+                    style={getStyles(windowWidth).detailsButton}
                     onClick={() => openReviewModal(dish)}
                   >
                     YORUM YAP / PUAN VER
@@ -378,9 +387,10 @@ function Home() {
             style={{
               backgroundColor: '#fff',
               borderRadius: '16px',
-              padding: '24px',
+              padding: windowWidth < 768 ? '20px' : '24px',
               width: '100%',
-              maxWidth: '420px',
+              maxWidth: windowWidth < 768 ? '95%' : '420px',
+              margin: windowWidth < 768 ? '16px' : '0',
               boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
               fontFamily: "'Poppins', sans-serif",
             }}
@@ -507,8 +517,8 @@ function Home() {
 
       {/* Admin: Kullanıcı Ekle Modalı */}
       {isAdmin && showAddUserModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 32, minWidth: 340, boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: window.innerWidth < 768 ? '16px' : '0' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: window.innerWidth < 768 ? '20px' : 32, width: window.innerWidth < 768 ? '100%' : 'auto', minWidth: window.innerWidth < 768 ? 'auto' : 340, maxWidth: window.innerWidth < 768 ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Kullanıcı Ekle</h2>
             <form onSubmit={handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input type="text" placeholder="Ad Soyad" required name="name" style={modalInputStyle} />
@@ -524,8 +534,8 @@ function Home() {
       )}
       {/* Admin: Yemek Ekle Modalı */}
       {isAdmin && showAddDishModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 32, minWidth: 340, boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: window.innerWidth < 768 ? '16px' : '0' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: window.innerWidth < 768 ? '20px' : 32, width: window.innerWidth < 768 ? '100%' : 'auto', minWidth: window.innerWidth < 768 ? 'auto' : 340, maxWidth: window.innerWidth < 768 ? '100%' : 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Yemek Ekle</h2>
             <form onSubmit={handleAddDish} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input type="text" placeholder="Yemek Adı" required name="name" style={modalInputStyle} />
@@ -543,8 +553,8 @@ function Home() {
   );
 }
 
-// Estetik CSS Stilleri
-const styles = {
+// Estetik CSS Stilleri (windowWidth state'i kullanılarak dinamik olarak hesaplanır)
+const getStyles = (windowWidth) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -558,35 +568,45 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '12px 24px',
+    padding: windowWidth < 768 ? '12px 16px' : '12px 24px',
     backgroundColor: '#fff',
     borderBottom: '1px solid #e0e0e0',
     fontFamily: "'Poppins', sans-serif",
     flexShrink: 0,
+    flexWrap: 'wrap',
+    gap: '8px',
   },
 
   userInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    flexWrap: 'wrap',
+    flex: 1,
+    minWidth: 0,
   },
 
   userName: {
-    fontSize: '14px',
+    fontSize: windowWidth < 768 ? '12px' : '14px',
     color: '#2c3e50',
     fontWeight: 500,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: windowWidth < 768 ? '120px' : 'none',
   },
 
   adminButton: {
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '6px 8px' : '6px 12px',
     backgroundColor: '#e67e22',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '10px' : '12px',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'background-color 0.3s',
+    whiteSpace: 'nowrap',
   },
 
   logoutButton: {
@@ -625,7 +645,7 @@ const styles = {
   },
 
   menuTitle: {
-    fontSize: '32px',
+    fontSize: windowWidth < 768 ? '24px' : '32px',
     color: '#1a1a1a',
     marginBottom: '5px',
   },
@@ -638,13 +658,16 @@ const styles = {
     fontFamily: "'Poppins', sans-serif",
   },
 
-  // IZGARA YAPISI
   gridContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)', // Yan yana 3 kart - daha dar kartlar
-    gap: '24px',
-    paddingBottom: '20px', // Alt kısımda biraz boşluk
-    alignItems: 'start', // Kartlar üstten hizalanır, içeriğe göre boyutlanır
+    gridTemplateColumns: windowWidth < 768 
+      ? '1fr' 
+      : windowWidth < 1024 
+        ? 'repeat(2, 1fr)' 
+        : 'repeat(3, 1fr)',
+    gap: windowWidth < 768 ? '16px' : '24px',
+    paddingBottom: '20px',
+    alignItems: 'start',
   },
 
   dishCard: {
@@ -661,7 +684,7 @@ const styles = {
 
   dishImage: {
     width: '100%',
-    height: '350px', // Dikey uzun kartlar için artırılmış yükseklik
+    height: windowWidth < 768 ? '200px' : '350px',
     objectFit: 'cover',
   },
 
@@ -704,7 +727,7 @@ const styles = {
     textTransform: 'uppercase',
     transition: 'background-color 0.3s',
   },
-};
+});
 
 // Modal input ve buton stilleri
 const modalInputStyle = {

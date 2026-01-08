@@ -69,8 +69,9 @@ function Login() {
     box: {
       position: 'relative',
       zIndex: 10,
-      width: '380px',
-      padding: '40px',
+      width: window.innerWidth < 768 ? '90%' : '380px',
+      maxWidth: '380px',
+      padding: window.innerWidth < 768 ? '30px 20px' : '40px',
       backgroundColor: 'rgba(0, 0, 0, 0.75)',
       border: '2px solid rgba(255, 255, 255, 0.6)',
       borderRadius: '8px',
@@ -82,7 +83,7 @@ function Login() {
     title: {
       color: 'white',
       textAlign: 'center',
-      fontSize: '28px',
+      fontSize: window.innerWidth < 768 ? '24px' : '28px',
       fontWeight: 'bold',
       marginBottom: '5px'
     },
